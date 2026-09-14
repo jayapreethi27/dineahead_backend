@@ -12,6 +12,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class ReservationResponseDTO {
 
+    //instances
     private Long id;
     private String customerName;
     private LocalDateTime reservationTime;
