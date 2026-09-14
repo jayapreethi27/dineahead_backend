@@ -109,7 +109,7 @@ public class ReservationServiceImpl implements ReservationService {
         // ==========================================
         // ADDED FOR OWNERSHIP SECURITY
         // ==========================================
-        validateReservationOwnership(
+        validateReservationViewAccess(
                 reservation
         );
 
@@ -1021,6 +1021,82 @@ public class ReservationServiceImpl implements ReservationService {
                                 "Authenticated user not found."
                         )
                 );
+    }
+
+    private void validateReservationViewAccess(
+            Reservation reservation
+    ) {
+
+        Authentication authentication =
+                SecurityContextHolder
+                        .getContext()
+                        .getAuthentication();
+
+
+        // ADMIN can view any reservation
+        boolean isAdmin =
+                authentication
+                        .getAuthorities()
+                        .stream()
+                        .anyMatch(
+                                authority ->
+                                        authority.getAuthority()
+                                                .equals(
+                                                        "ROLE_ADMIN"
+                                                )
+                        );
+
+        if (isAdmin) {
+            return;
+        }
+
+
+        // RESTAURANT OWNER can view
+        // reservations belonging to their restaurant
+        boolean isRestaurantOwner =
+                authentication
+                        .getAuthorities()
+                        .stream()
+                        .anyMatch(
+                                authority ->
+                                        authority.getAuthority()
+                                                .equals(
+                                                        "ROLE_RESTAURANT_OWNER"
+                                                )
+                        );
+
+        if (isRestaurantOwner) {
+
+            validateRestaurantOwnership(
+                    reservation
+                            .getRestaurant()
+                            .getId()
+            );
+
+            return;
+        }
+
+
+        // CUSTOMER can view only their own reservation
+        User currentUser =
+                getCurrentAuthenticatedUser();
+
+        if (reservation.getUser() != null
+                &&
+                reservation
+                        .getUser()
+                        .getId()
+                        .equals(
+                                currentUser.getId()
+                        )) {
+
+            return;
+        }
+
+
+        throw new org.springframework.security.access.AccessDeniedException(
+                "You do not have permission to access this reservation."
+        );
     }
 
     // ==========================================
