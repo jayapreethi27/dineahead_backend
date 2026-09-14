@@ -246,7 +246,7 @@ public class SecurityConfig {
                                         "/api/menu-items/**",
                                         "/api/menu-categories/**"
                                 )
-                                .authenticated()
+                                .permitAll()
 
 
                                 // ==========================
