@@ -16,6 +16,8 @@ public class OrderStatusService {
 
         return switch (currentStatus) {
 
+            //Order Status
+
             case PLACED ->
                     newStatus == OrderStatus.ACCEPTED
                             || newStatus == OrderStatus.CANCELLED;
